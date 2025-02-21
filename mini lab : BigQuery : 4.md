@@ -16,7 +16,7 @@ export TABLE_NAME=""
 export BUCKET_NAME=""
 export FILE_PATH="gs://BUCKET_NAME/products.csv"
 ```
-- Run the below commands in shell
+- Run the below commands in shell - 1ST
 ```
 bq load \
   --source_format=CSV \
@@ -24,14 +24,14 @@ bq load \
   $PROJECT_ID:$DATASET_NAME.$TABLE_NAME \
   $FILE_PATH
 ```
-- Run the below commands in shell
+- Run the below commands in shell - 2ND
 ```
 bq query --use_legacy_sql=false "
 CREATE SEARCH INDEX idx_product_search
 ON \`$PROJECT_ID.$DATASET_NAME.$TABLE_NAME\`(SKU, name, orderedQuantity, stockLevel, restockingLeadTime);
 "
 ```
-- Run the below commands in shell
+- Run the below commands in shell - 3RD
 ```
 bq query --use_legacy_sql=false "
 CREATE SEARCH INDEX IF NOT EXISTS 
@@ -39,7 +39,7 @@ CREATE SEARCH INDEX IF NOT EXISTS
 ON \`$PROJECT_ID.$DATASET_NAME.products_information\` (ALL COLUMNS);
 "
 ```
-- Run the below commands in shell
+- Run the below commands in shell - 4TH
 ```
 bq query --use_legacy_sql=false "
 SELECT * 
@@ -47,7 +47,7 @@ FROM \`$PROJECT_ID.$DATASET_NAME.products_information\`
 WHERE SEARCH(STRUCT(SKU, name, orderedQuantity, stockLevel, restockingLeadTime), '22 oz Water Bottle');
 "
 ```
-# - IF YOU GOT ERROR IN LAST COMMAND THEN ONLY RUN THIS COMMAND AGAIN
+- # IF YOU GOT ERROR IN LAST COMMAND THEN ONLY RUN THIS COMMAND AGAIN
 ```
 bq query --use_legacy_sql=false "
 SELECT column_name
