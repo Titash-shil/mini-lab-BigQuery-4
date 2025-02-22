@@ -10,50 +10,16 @@
 ### Run the following Commands in CloudShell
 
 ```
-export PROJECT_ID=""
-export DATASET_NAME=""
-export TABLE_NAME=""
-export BUCKET_NAME=""
-export FILE_PATH="gs://BUCKET_NAME/products.csv"
+export PROJECT_ID=$(gcloud config get-value project)
+export REGION=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-region])")
 ```
-- Run the below commands in shell - 1ST
 ```
-bq load \
-  --source_format=CSV \
-  --autodetect \
-  $PROJECT_ID:$DATASET_NAME.$TABLE_NAME \
-  $FILE_PATH
+export BUCKET_NAME=
 ```
-- Run the below commands in shell - 2ND
 ```
-bq query --use_legacy_sql=false "
-CREATE SEARCH INDEX idx_product_search
-ON \`$PROJECT_ID.$DATASET_NAME.$TABLE_NAME\`(SKU, name, orderedQuantity, stockLevel, restockingLeadTime);
-"
-```
-- Run the below commands in shell - 3RD
-```
-bq query --use_legacy_sql=false "
-CREATE SEARCH INDEX IF NOT EXISTS 
-  \`$PROJECT_ID.$DATASET_NAME.products_information_search_index\`
-ON \`$PROJECT_ID.$DATASET_NAME.products_information\` (ALL COLUMNS);
-"
-```
-- Run the below commands in shell - 4TH
-```
-bq query --use_legacy_sql=false "
-SELECT * 
-FROM \`$PROJECT_ID.$DATASET_NAME.products_information\`
-WHERE SEARCH(STRUCT(SKU, name, orderedQuantity, stockLevel, restockingLeadTime), '22 oz Water Bottle');
-"
-```
-- # IF YOU GOT ERROR IN LAST COMMAND THEN ONLY RUN THIS COMMAND AGAIN
-```
-bq query --use_legacy_sql=false "
-SELECT column_name
-FROM \`$PROJECT_ID.$DATASET_NAME.INFORMATION_SCHEMA.COLUMNS\`
-WHERE table_name = 'products_information';
-"
+bq load --source_format=CSV --autodetect products.products_information gs://$BUCKET_NAME/products.csv 
+bq query --use_legacy_sql=false "CREATE SEARCH INDEX IF NOT EXISTS products.p_i_search_index ON products.products_information (ALL COLUMNS);"
+bq query --use_legacy_sql=false "SELECT * FROM products.products_information WHERE SEARCH(STRUCT(), '22 oz Water Bottle') = TRUE;"
 ```
 
 ---
